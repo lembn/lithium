@@ -4,8 +4,18 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+click = "*"
+setuptools = "*"
+money = "*"
 
 [dev-packages]
+black = "*"
 
 [requires]
 python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
+
+[scripts]
+start = "python src/main.py"

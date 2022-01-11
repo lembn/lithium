@@ -129,6 +129,9 @@ In theory, $t_1$ and $t_2$ will be equal, since even though the expressions are 
 - return highest scoring battery as practical best
 - calculate theoretical best by finding highest point of graph
 - REMEMBER total mass is base mass + battery mass
+- save results to file
+- pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
+- web version? 
 
 Sources:
 - https://youtu.be/g0HFGtzBtRs
