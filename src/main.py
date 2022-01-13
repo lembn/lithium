@@ -1,4 +1,5 @@
 import click
+from click.termui import prompt
 from battery import Battery
 from data import clean, score
 from learner import predict
@@ -6,7 +7,6 @@ from output import warn, report
 from scraper import scrape
 
 
-# type checks
 @click.command()
 @click.option(
     "-m", "--mass", prompt=True, help="Total mass of the drone (kg).", type=click.FLOAT
@@ -31,10 +31,10 @@ from scraper import scrape
 @click.option("-b", "--bias", default=0, help="Flight Intensity bias.", type=click.INT)
 @click.option(
     "-d",
-    "--discharge",
-    default=0.8,
-    help="Discharge percentage of the battery (decimal form).",
-    type=click.FLOAT,
+    "--domain",
+    prompt=True,
+    help="Domain to search on if choice is available (eg. com, co.uk, ca).",
+    type=click.STRING,
 )
 @click.option(
     "-i",
@@ -62,17 +62,24 @@ from scraper import scrape
     help="Maximum current drawn by a single motor (A).",
     type=click.FLOAT,
 )
+@click.option(
+    "--discharge",
+    default=0.8,
+    help="Discharge percentage of the battery (decimal form).",
+    type=click.FLOAT,
+)
 def cli(
     mass: float,
     grav: float,
     motors: int,
     thrust: float,
     bias: int,
-    discharge: float,
+    domain: str,
     constant_current: float,
     cells: int,
     p_max: float,
     i_max: float,
+    discharge: float,
 ):
     """
     `lithium` is a battery capacity optimiser for drone builds that uses statistical analysis and
@@ -83,7 +90,7 @@ def cli(
         warn("either p-max or i-max (or both) must be defined.")
         return
 
-    batteries = clean(scrape(cells))
+    batteries = clean(scrape(cells, domain))
     practical_best = [Battery.empty()]
     for battery in batteries:
         battery.setScore(score)
@@ -96,9 +103,6 @@ def cli(
 
     report(practical_best, theoretical_best)
 
-
-# - REMEMBER total mass is base mass + battery mass
-# - save results to file
 
 if __name__ == "main":
     cli(prog_name="lithium")

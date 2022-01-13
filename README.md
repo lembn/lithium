@@ -1,4 +1,5 @@
 # lithium
+
 `lithium` is a battery capacity optimiser for drone builds that uses machine learning techniques to find the optimum battery capacity for a drone.
 
 ---
@@ -15,45 +16,49 @@ https://www.amazon.co.uk/Zeee-8000mAh-Rechargeable-Battery-Associated/dp/B07JZ3S
 ---
 
 ## flight time calculation
-> *This formula is designed to observe how different batteries affect the total flight time of a drone. Because of this, it is assumed that the capacity and voltage of the battery is known. Likewise, the formula assumes that the following information is already known about the motor:*
-> - *Maximum current draw under load*
-> - *Maximum power conusmption under load*
+
+> _This formula is designed to observe how different batteries affect the total flight time of a drone. Because of this, it is assumed that the capacity and voltage of the battery is known. Likewise, the formula assumes that the following information is already known about the motor:_
+>
+> - _Maximum current draw under load_
+> - _Maximum power conusmption under load_
 
 Battery capacity is measured in amp-hours, where a 2Ah battery can power a system drawing 2A for 1 hour, or a system drawing 1A for 30 min, and so on. As you can see, the relationship between capacity and usage time is a division, where the usage time (in hours) is equal to the capacity divided by the current draw. Applying this formula to drones. we can say:
 
 $$t = \frac{c}{\text{ACD}}$$
 
-> *Where:*
-> - $t$ *is time (**hours**)*
-> - $\text{ACD}$ *is Average Current Draw (**A**)*
-> - $c$ *is the capacity of the battery (**Ah**)*
+> _Where:_
+>
+> - $t$ _is time (**hours**)_
+> - $\text{ACD}$ _is Average Current Draw (**A**)_
+> - $c$ _is the capacity of the battery (**Ah**)_
 
 However, for safety reasons, LiPo batteries should never be discharged below 80%, which reduces our usable capacity. This percentage can be tweaked depending on how much risk you're willing to take with your battery (but you really shouldn't), so we'll add it into the equation:
 
 $$t = \frac{c \cdot D}{\text{ACD}}$$
 
-> *Where $D$ is discharge **percentage in decimal form**.*
+> _Where $D$ is discharge **percentage in decimal form**._
 
-Next, we have to calculate average current draw. $\text{ACD}$ consists of a varaible part $I_v$, and a constant part, $I_c$. For the constant part, $I_c$, we simply take a sum of the current draw of all components that will consistently draw the same current, regardless of the amount of thrust being applied. 
+Next, we have to calculate average current draw. $\text{ACD}$ consists of a varaible part $I_v$, and a constant part, $I_c$. For the constant part, $I_c$, we simply take a sum of the current draw of all components that will consistently draw the same current, regardless of the amount of thrust being applied.
 
-The variable part, $I_v$ represents the current drawn by the motors. This which will change depending on how much thrust is being applied which is why we take an *average* for these calculations. To find a value for the average current drawn by a single motor, $I$, we use the equation for electrcal power:
+The variable part, $I_v$ represents the current drawn by the motors. This which will change depending on how much thrust is being applied which is why we take an _average_ for these calculations. To find a value for the average current drawn by a single motor, $I$, we use the equation for electrcal power:
 
 $$I \cdot V = P$$
 $$I = \frac{P}{V}$$
 
-> *Where:*
-> - $P$ *is power consumption of the motor under (**W**)*
-> - $V$ *is the voltage being applied to the motor (**V**)*
+> _Where:_
+>
+> - $P$ _is power consumption of the motor under (**W**)_
+> - $V$ _is the voltage being applied to the motor (**V**)_
 
 Considering we already know $V$, we have two ways to find $I$. Either find $P$ and solve the equation for $I$, or ingore the equation and find $I$ from some other current draw value.
 
-Since we are looking for *average* current draw, we'll take $P$ to be the *average* power consumption of one motor over the entire flight. This can easily be found by taking some percentage of the maximum power consumption, $P_{MAX}$, assuming that $P$ will be around that percentage of $P_{MAX}$ over the course of the flight. We'll call this ratio *"Flight Intensity", $F$* - which will be a percentage in decimal form. Using this we find:
+Since we are looking for _average_ current draw, we'll take $P$ to be the _average_ power consumption of one motor over the entire flight. This can easily be found by taking some percentage of the maximum power consumption, $P_{MAX}$, assuming that $P$ will be around that percentage of $P_{MAX}$ over the course of the flight. We'll call this ratio _"Flight Intensity", $F$_ - which will be a percentage in decimal form. Using this we find:
 
 $$P = F \cdot P_{MAX}$$
 $$I_1 = \frac{P}{V}$$
 $$I_1 = \frac{F \cdot P_{MAX}}{V}$$
 
-For our second method, ignoring the equation, we can find $I$ by taking a percentage of the maximum current draw, $I_{MAX}$ of the motors. This percentage will be our *Flight Intensity* from last time, on the same assumption that over the course of the whole flight, the average current draw, $I_2$ will be $F \cdot I_{MAX}$.
+For our second method, ignoring the equation, we can find $I$ by taking a percentage of the maximum current draw, $I_{MAX}$ of the motors. This percentage will be our _Flight Intensity_ from last time, on the same assumption that over the course of the whole flight, the average current draw, $I_2$ will be $F \cdot I_{MAX}$.
 
 To find $I_v$, we multiply both of our expressions for $I$ by the number of motors, $N$, and now we can create expressions for $\text{ACD}$:
 
@@ -85,18 +90,17 @@ $$
 		1, \quad 1 \leq x
 	\end{cases}
 $$
+
 $$F = clip(\frac{m \cdot G}{N \cdot T} + 0.001b)$$
 
 As you can see, the introduction of $b$ makes $F$ more adaptable, allowing the value to be offset, but also allowing remain $F$ to remain general if $b = 0$. The multiplier applied to $b$ is there to soften the effect that the bias value has on the value of $F$.
 
 Now we have the final forms for $t$:
 
-> $\text{Power Consumption Form:}$
-> $$t_1 = \frac{c \cdot D}{I_c + \frac{N \cdot F \cdot P_{MAX}}{V}}$$
-> 
-> $\text{Current Draw Form:}$
-> $$t_2 = \frac{c \cdot D}{I_c + N \cdot F \cdot I_{MAX}}$$
-> 
+> $\text{Power Consumption Form:}$ > $$t_1 = \frac{c \cdot D}{I_c + \frac{N \cdot F \cdot P_{MAX}}{V}}$$
+>
+> $\text{Current Draw Form:}$ > $$t_2 = \frac{c \cdot D}{I_c + N \cdot F \cdot I_{MAX}}$$
+>
 > $\text{Where}$
 > $$ clip(x) = \begin{cases} 0, \quad x \leq 0 \\ x, \quad 0 < x < 1 \\ 1, \quad 1 \leq x \end{cases}$$
 > $$F = clip(\frac{m \cdot G}{N \cdot T} + 0.001b)$$
@@ -105,34 +109,38 @@ In theory, $t_1$ and $t_2$ will be equal, since even though the expressions are 
 
 > $$ clip(x) = \begin{cases} 0, \quad x \leq 0 \\ x, \quad 0 < x < 1 \\ 1, \quad 1 \leq x \end{cases}$$
 > $$F = clip(\frac{m \cdot G}{N \cdot T} + 0.001b)$$
-> $$t = \frac{\frac{c \cdot D}{I_c + \frac{N \cdot F \cdot P_{MAX}}{V}} + \frac{c \cdot D}{I_c + N \cdot F \cdot I_{MAX}}}{2}$$
+> $$t = \frac{\frac{c \cdot D}{I*c + \frac{N \cdot F \cdot P*{MAX}}{V}} + \frac{c \cdot D}{I*c + N \cdot F \cdot I*{MAX}}}{2}$$
 
-> *Where:*
-> - $m$ *is the total mass of the drone (**kg**).*
-> - $G$ *is the gravitational feild strength (**N/kg**).*
-> - $N$ *is the **number of motors**.*
-> - $T$ *is the maximum thrust produced by a single motor (**N**).*
-> - $b$ *is the **Flight Intensity bias**.*
-> - $t$ *is flight time (**hours**).*
-> - $c$ *is the capacity of the battery (**Ah**).*
-> - $D$ *is discharge **percentage in decimal form**.*
-> - $I_c$ *constant current draw (**A**).*
-> - $P_{MAX}$ *is the maximum power consumption of a single motor (**W**)*
-> - $V$ *is the voltage of the battery (**V**).*
-> - $I_{MAX}$ *is the maximum current drawn by a single motor (**A**)*
-	
+> _Where:_
+>
+> - $m$ _is the total mass of the drone (**kg**)._
+> - $G$ _is the gravitational feild strength (**N/kg**)._
+> - $N$ _is the **number of motors**._
+> - $T$ _is the maximum thrust produced by a single motor (**N**)._
+> - $b$ _is the **Flight Intensity bias**._
+> - $t$ _is flight time (**hours**)._
+> - $c$ _is the capacity of the battery (**Ah**)._
+> - $D$ _is discharge **percentage in decimal form**._
+> - $I_c$ _constant current draw (**A**)._
+> - $P_{MAX}$ _is the maximum power consumption of a single motor (**W**)_
+> - $V$ _is the voltage of the battery (**V**)._
+> - $I_{MAX}$ _is the maximum current drawn by a single motor (**A**)_
+
 ## TODO
-- scrape page of (Xv battery) or (NS battery)
-- collect datapoints of capacity and mass
-- remove outliers
-- score each scraped battery using flight time formula
-- return highest scoring battery as practical best
-- calculate theoretical best by finding highest point of graph
-- REMEMBER total mass is base mass + battery mass
+
+- write parse function:
+  - for each battery in search get mass and capacity
+  - go to all pagaes
+  - follow links https://youtu.be/-mkewdn9JdU
+- use [ItemLoader](https://youtu.be/wyE4oDxScfE) instead of battery class
+  - use [pipelines](https://docs.scrapy.org/en/latest/topics/item-pipeline.html) with items
+- [progress](https://click.palletsprojects.com/en/8.0.x/utils/#showing-progress-bars) bars
+
 - save results to file
 - pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
-- web version? 
+- web version?
 
 Sources:
+
 - https://youtu.be/g0HFGtzBtRs
 - https://youtu.be/KLGfMGsgP34
