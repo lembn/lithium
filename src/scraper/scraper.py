@@ -1,9 +1,9 @@
-from scraper.spiders.amazon_spider import AmazonSpider
+from itertools import chain
+from scraper.spiders import AmazonSpider
 
-# TODO track scraper performance and if the scrape was bad recommend upgrading to the latest version
 
 def scrape(cells: int, domain: str):
-    voltage = cells * 3.7
-    amazon = AmazonSpider(domain)
-    amazon.crawl([f"{cells}s lipo", f"{voltage}v lipo"])
-    pass
+    voltage = round(cells * 3.7, 1)
+    amazon = AmazonSpider(domain, [f"{cells}s lipo", f"{voltage}v lipo"])
+    # ... other spiders here
+    return chain(amazon.products)  # chain products from all spiders

@@ -1,5 +1,4 @@
 import click
-from click.termui import prompt
 from battery import Battery
 from data import clean, score
 from learner import predict
@@ -104,5 +103,6 @@ def cli(
     report(practical_best, theoretical_best)
 
 
-if __name__ == "main":
+if __name__ == "__main__":
+    scrape(3, "co.uk")
     cli(prog_name="lithium")

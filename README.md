@@ -139,6 +139,7 @@ In theory, $t_1$ and $t_2$ will be equal, since even though the expressions are 
 - save results to file
 - pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
 - web version?
+- support more sites
 
 Sources:
 
