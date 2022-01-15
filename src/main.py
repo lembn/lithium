@@ -1,6 +1,6 @@
 import click
 from battery import Battery
-from data import clean, score
+from data import score
 from learner import predict
 from output import warn, report
 from scraper import scrape
@@ -79,7 +79,7 @@ def cli(
     p_max: float,
     i_max: float,
     discharge: float,
-):
+) -> None:
     """
     `lithium` is a battery capacity optimiser for drone builds that uses statistical analysis and
     machine learning techniques to find the optimum battery capacity for a drone.
@@ -89,20 +89,21 @@ def cli(
         warn("either p-max or i-max (or both) must be defined.")
         return
 
-    batteries = clean(scrape(cells, domain))
+    batteries = scrape(cells, domain)
+    data_points = []
     practical_best = [Battery.empty()]
     for battery in batteries:
-        battery.setScore(score)
+        battery.score = score(battery)
+        data_points.append([battery.mass, battery.capacity, battery.score])
         if battery.score > practical_best[0].score:
             practical_best = [battery]
         elif battery.score == practical_best[0].score:
             practical_best.append(battery)
 
-    theoretical_best = predict(batteries)
+    theoretical_best = predict(data_points)
 
     report(practical_best, theoretical_best)
 
 
 if __name__ == "__main__":
-    scrape(3, "co.uk")
     cli(prog_name="lithium")

@@ -2,7 +2,7 @@ from itertools import chain
 from scraper.spiders import AmazonSpider
 
 
-def scrape(cells: int, domain: str):
+def scrape(cells: int, domain: str) -> chain:
     voltage = round(cells * 3.7, 1)
     amazon = AmazonSpider(domain, [f"{cells}s lipo", f"{voltage}v lipo"])
     # ... other spiders here
