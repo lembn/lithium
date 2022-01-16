@@ -1,6 +1,4 @@
 import re
-from itertools import chain
-from typing import Generator
 from battery import Battery
 from lxml.html import fromstring
 from scraper.spiders.spider import Spider
@@ -14,10 +12,17 @@ class AmazonSpider(Spider):
                 len(product.get("data-asin")) > 0
                 and product.get("data-asin") not in self.asins
             ):
-                yield self.scrape(product.get("data-asin"))
+                battery = self.scrape(product.get("data-asin"))
+                if not battery:
+                    continue
+                yield battery
 
-        if len(html.xpath('//li[@class="a-disabled a-last"]')) == 0:
-            yield from self.crawl(url, page + 1)
+        page += 1
+        if (
+            self.can_recurse(page)
+            and len(html.xpath('//li[@class="a-disabled a-last"]')) == 0
+        ):
+            yield from self.crawl(url, page)
 
     # TODO: at the moment we ignore batteries that dont fit our parsing format. improve this
     def scrape(self, asin):
@@ -26,14 +31,12 @@ class AmazonSpider(Spider):
         try:
             parsed_html = fromstring(self.get(url))
             about_list = parsed_html.xpath('//div[@id="feature-bullets"]/ul')[0]
-            return {
-                asin: Battery(
-                    asin,
-                    re.search("\d+(?=m(a|A)h)", about_list.text_content()).group(),
-                    re.search("\d+(?=g)", about_list.text_content()).group(),
-                    url,
-                    about_list.xpath('//span[@class="a-price"]/span')[0].text_content(),
-                )
-            }
+            return Battery(
+                asin,
+                re.search("\d+(?=m(a|A)h)", about_list.text_content()).group(),
+                re.search("\d+(?=g)", about_list.text_content()).group(),
+                url,
+                about_list.xpath('//span[@class="a-price"]/span')[0].text_content(),
+            )
         except:
             pass

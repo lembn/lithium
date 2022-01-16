@@ -1,9 +1,9 @@
 from itertools import chain
 from scraper.spiders import AmazonSpider
 
-
-def scrape(cells: int, domain: str) -> chain:
+# TODO: precaulculate the number of items (using `pages` * items per page) to make prog bar
+def scrape(cells: int, domain: str, pages: int) -> chain:
     voltage = round(cells * 3.7, 1)
-    amazon = AmazonSpider(domain, [f"{cells}s lipo", f"{voltage}v lipo"])
+    amazon = AmazonSpider(domain, [f"{cells}s lipo", f"{voltage}v lipo"], pages)
     # ... other spiders here
     return chain(amazon.products)  # chain products from all spiders

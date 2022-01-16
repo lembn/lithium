@@ -1,8 +1,8 @@
+import loader
 import click
 from battery import Battery
-from data import score
 from learner import predict
-from output import warn, report
+import output
 from scraper import scrape
 
 
@@ -86,24 +86,43 @@ def cli(
     """
 
     if not p_max and not i_max:
-        warn("either p-max or i-max (or both) must be defined.")
+        output.warn("either p-max or i-max (or both) must be defined.")
         return
 
-    batteries = scrape(cells, domain)
-    data_points = []
+    batteries = scrape(cells, domain, 1)
+    capacities = []
+    masses = []
     practical_best = [Battery.empty()]
     for battery in batteries:
-        battery.score = score(battery)
-        data_points.append([battery.mass, battery.capacity, battery.score])
-        if battery.score > practical_best[0].score:
-            practical_best = [battery]
-        elif battery.score == practical_best[0].score:
-            practical_best.append(battery)
+        capacities.append(battery.capacity)
+        masses.append(battery.mass)
+        # battery.score = score(battery)
+        # data_points.append([battery.mass, battery.capacity, battery.score])
+        # if battery.score > practical_best[0].score:
+        #     practical_best = [battery]
+        # elif battery.score == practical_best[0].score:
+        #     practical_best.append(battery)
 
     theoretical_best = predict(data_points)
 
-    report(practical_best, theoretical_best)
+    output.report(practical_best, theoretical_best)
 
 
 if __name__ == "__main__":
-    cli(prog_name="lithium")
+    output.info("Initialising...")
+    capacities = []
+    masses = []
+    batteries = loader.load()
+    if not batteries:
+        batteries = scrape(3, "co.uk", 1)
+        loader.open_save()
+        output.info("Collecting data...")
+    for battery in batteries:
+        capacities.append(battery.capacity)
+        masses.append(battery.mass)
+        if loader.saving:
+            print(battery)
+            loader.save(battery)
+    loader.close()
+    output.graph(capacities, "Capacity", masses, "Mass")
+    # cli(prog_name="lithium")

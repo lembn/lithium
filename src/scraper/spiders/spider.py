@@ -1,4 +1,5 @@
 from itertools import chain
+from typing import Callable
 from battery import Battery
 from abc import abstractmethod
 import random
@@ -61,8 +62,9 @@ class Spider:
     asins: list[str] = []
     url: str = ""
     products: chain = chain()
+    can_recurse: Callable[[int], bool]
 
-    def __init__(self, domain: str, queries: list[str]) -> None:
+    def __init__(self, domain: str, queries: list[str], max_page: int = 999) -> None:
         self.url = f"https://www.amazon.{domain}"
         self.products = chain(
             *[
@@ -72,6 +74,7 @@ class Spider:
                 )
             ]
         )
+        self.can_recurse = lambda x: x <= max_page
 
     @abstractmethod
     def crawl(self, url: str, page: int):
@@ -81,5 +84,5 @@ class Spider:
     def scrape(self, asin: str, page) -> dict[str, Battery]:
         pass
 
-    def get(url: str) -> str:
+    def get(self, url: str) -> str:
         return requests.get(url, headers=random.choice(headers)).text

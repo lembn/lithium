@@ -9,6 +9,7 @@ setuptools = "*"
 money = "*"
 lxml = "*"
 requests = "*"
+matplotlib = "*"
 
 [dev-packages]
 black = "*"
