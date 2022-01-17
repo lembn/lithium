@@ -1,5 +1,5 @@
 import re
-from battery import Battery
+from data.battery import Battery
 from lxml.html import fromstring
 from scraper.spiders.spider import Spider
 

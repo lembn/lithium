@@ -3,7 +3,9 @@ from itertools import chain
 from pathlib import Path
 import pickle
 from typing import Generator
-from battery import Battery
+from data.battery import Battery
+
+# TODO: do we still need this module?
 
 SAVE_DIR: str = "store"
 SAVE_FILE: str = "batteries.pickle"

@@ -10,6 +10,7 @@ money = "*"
 lxml = "*"
 requests = "*"
 matplotlib = "*"
+numpy = "*"
 
 [dev-packages]
 black = "*"
@@ -21,4 +22,4 @@ python_version = "3.9"
 allow_prereleases = true
 
 [scripts]
-start = "python src/main.py"
+help = "python src/main.py --help"

@@ -1,6 +1,6 @@
 from itertools import chain
 from typing import Callable
-from battery import Battery
+from data.battery import Battery
 from abc import abstractmethod
 import random
 import requests

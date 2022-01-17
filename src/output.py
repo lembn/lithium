@@ -1,7 +1,7 @@
 from datetime import datetime
 import click
 import matplotlib.pyplot as plt
-from battery import Battery
+from data.battery import Battery
 
 
 def time() -> str:
@@ -30,12 +30,11 @@ def warn(message: str) -> None:
     )
 
 
-def report(practical_best: list[Battery], theoretical_best: list[Battery]) -> None:
-    pass
-
-
-def graph(x: list[int], x_label: str, y: list[int], y_label: str) -> None:
-    plt.scatter(x, y)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
+def graph(
+    x: list[int], x_label: str, y: list[int], y_label: str, z: list[int], z_label: str
+) -> None:
+    ax = plt.axes()
+    ax.scatter(x, y)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
     plt.show()
