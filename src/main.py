@@ -1,20 +1,69 @@
 from distutils.log import info
-from calc import score, score_battery
-import loader
+from calc import score_battery
 import click
 from data.model import Model
-import output
-from scraper import scrape
 
+
+def use_model(force_options):
+    #TODO: organise options in help menu
+    model_options = [
+        ## Mandatory options
+        click.option(
+            "-m",
+            "--mass",
+            prompt=force_options,
+            help="Base mass of the drone [not including battery] (kg).",
+            type=click.FLOAT,
+        ),
+        click.option(
+            "-p",
+            "--pull",
+            prompt=force_options,
+            help="The pull produced by a single motor (kg).",
+            type=click.FLOAT,
+        ),
+        click.option(
+            "-i",
+            "--constant-current",
+            prompt=force_options,
+            help="Total constant current draw of components (A).",
+            type=click.FLOAT,
+        ),
+        click.option(
+            "-c",
+            "--cells",
+            prompt=force_options,
+            help="Number of serial cells in the battery (S number).",
+            type=click.INT,
+        ),
+        click.option(
+            "--p-max",
+            default=0,
+            help="Maximum power consumption of a single motor (W).",
+            type=click.FLOAT,
+        ),
+        click.option(
+            "--i-max",
+            default=0,
+            help="Maximum current drawn by a single motor (A).",
+            type=click.FLOAT,
+        ),
+        click.option("--bias", default=0, help="Flight Intensity bias.", type=click.INT),
+        click.option(
+            "--discharge",
+            default=0.8,
+            help="Discharge percentage of the battery (decimal form).",
+            type=click.FLOAT,
+        )
+    ]
+
+    def wrapper(wrapped):
+        for option in reversed(model_options):
+            wrapped = option(wrapped)
+        return wrapped
+    return wrapper
 
 @click.command()
-@click.option(
-    "-d",
-    "--domain",
-    prompt=True,
-    help="Domain to search on if choice is available (eg. com, co.uk, ca).",
-    type=click.STRING,
-)
 @click.group(
     help="""
     `lithium` produces models of flight times for drones from the mass and capacity of the drone's battery.
@@ -25,39 +74,7 @@ from scraper import scrape
 def cli():
     pass
 
-
-# TODO: organise options in help menu
 # TODO: allow user to specify more about how model.png looks - include savefig settings
-@cli.command()
-## Mandatory options
-@click.option(
-    "-m",
-    "--mass",
-    prompt=True,
-    help="Base mass of the drone [not including battery] (kg).",
-    type=click.FLOAT,
-)
-@click.option(
-    "-p",
-    "--pull",
-    prompt=True,
-    help="The pull produced by a single motor (kg).",
-    type=click.FLOAT,
-)
-@click.option(
-    "-i",
-    "--constant-current",
-    prompt=True,
-    help="Total constant current draw of components (A).",
-    type=click.FLOAT,
-)
-@click.option(
-    "-c",
-    "--cells",
-    prompt=True,
-    help="Number of serial cells in the battery (S number).",
-    type=click.INT,
-)
 @click.option(
     "-o",
     "--output",
@@ -65,33 +82,14 @@ def cli():
     help="The relative folder path to save the model data to.",
     type=click.STRING,
 )
-## Optional options (at least one must be provided)
-@click.option(
-    "--p-max",
-    default=0,
-    help="Maximum power consumption of a single motor (W).",
-    type=click.FLOAT,
-)
-@click.option(
-    "--i-max",
-    default=0,
-    help="Maximum current drawn by a single motor (A).",
-    type=click.FLOAT,
-)
-## Advanced options
-@click.option("--bias", default=0, help="Flight Intensity bias.", type=click.INT)
-@click.option(
-    "--discharge",
-    default=0.8,
-    help="Discharge percentage of the battery (decimal form).",
-    type=click.FLOAT,
-)
 @click.option(
     "--multiplier",
     default=0.072,  # TODO: get better default value
     help="Value to multiply the battery capacity by to estimate mass.",
     type=click.FLOAT,
 )
+@use_model(force_options=True)
+@cli.command()
 def generate(
     mass: float,
     pull: float,
@@ -118,30 +116,36 @@ def generate(
 
 # TODO: allow model opts to be passed to test which will test the battery with the altered values
 @click.argument(
-    "model",
+    "modelpath",
     type=click.STRING,
 )
 @click.option(
-    "-c",
-    "--capacity",
+    "-bc",
+    "--battery-capacity",
     prompt=True,
     help="The capacity of the battery (Ah).",
     type=click.FLOAT,
 )
 @click.option(
-    "-m",
-    "--mass",
+    "-bm",
+    "--battery-mass",
     prompt=True,
     help="The mass of the battery (kg).",
     type=click.FLOAT,
 )
+@use_model(force_options=False)
 @cli.command()
-def calculate(model, capacity, mass):
+def calculate(modelpath, battery_capacity, battery_mass, mass, pull, constant_current, cells, p_max, i_max, bias, discharge):
     """Calculate an estimate for the flight time of drone using it's flight time model
 
     MODEL - the relative file path of the model.json file to test aganst
     """
-    info(f"\n RESULT: {score_battery(capacity, mass, Model.load(model))} minutes")
+
+    model = Model.load(modelpath)
+    #TODO: implement
+    model.adjust(mass, pull, constant_current, cells, p_max, i_max, bias, discharge)
+    info(f"\n RESULT: {score_battery(battery_capacity, battery_mass, model)} minutes")
+
 
 
 @cli.command()
@@ -170,6 +174,14 @@ def estimate():
     # TODO: scrape amazon to get an estimate for the multiplier
     pass
 
+# TODO: scraper methods will requires the --domain option
+# @click.option(
+#     "-d",
+#     "--domain",
+#     default=True,
+#     help="Domain to search on if choice is available (eg. com, co.uk, ca).",
+#     type=click.STRING,
+# )
 
 if __name__ == "__main__":
     cli(prog_name="lithium")
