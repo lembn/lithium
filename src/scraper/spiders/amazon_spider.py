@@ -5,6 +5,8 @@ from scraper.spiders.spider import Spider
 
 
 class AmazonSpider(Spider):
+    PPA = 48
+
     def crawl(self, url, page):
         html = fromstring(self.get(f"{url}&page={page}"))
         for product in html.xpath("//div[@data-asin]"):

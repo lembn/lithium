@@ -1,5 +1,8 @@
+from console import info
 import click
 from scraper import scrape
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
 
 @click.command()
@@ -27,6 +30,25 @@ from scraper import scrape
 def estimate(cells: int, domain: str, pages: int):
     """Extract data of existing Lithium Polymer batteries from online e-tailers to estimate
     the relationship between capacity and mass. This estimate results is the multiplier used when generating models"""
-    data = scrape(cells, domain, pages)
-    # TODO: finish
-    pass
+    count, data_gen = scrape(cells, domain, pages)
+    capacities = []
+    masses = []
+
+    fill_char = click.style("#", fg="green")
+    empty_char = click.style("-", fg="white", dim=True)
+    with click.progressbar(
+        data_gen,
+        length=count,
+        label="Collecting data...",
+        fill_char=fill_char,
+        empty_char=empty_char,
+        show_percent=True,
+        show_pos=True,
+        show_eta=True,
+    ) as items:
+        for item in items:
+            capacities.append(item.capacity)
+            masses.append(item.mass)
+
+    model = LinearRegression().fit(np.array(capacities), np.array(masses))
+    info(f"Multiplier estimation: {model.coef_[0]}")
