@@ -135,13 +135,27 @@ In theory, $t_1$ and $t_2$ will be equal, since even though the expressions are 
 ## The Function
 <iframe src="https://www.desmos.com/calculator/uii8rmxzki?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
 
-[This](https://www.desmos.com/calculator/ivuhbxfa4n) is the estimation for the CEDRIC drone's battery life model. It shows that all models with this formula have no theoretical maximum, so there is no *best* battery.
+[This](https://www.desmos.com/calculator/ivuhbxfa4n) is the estimation for the CEDRIC drone's battery life model. The model was obtained by estimating the relationship between battery mass and battery capacity, which resulted in a gradient which could be used for expressing mass in terms of capaicty, meaning there is only one unknown variable in the expression for $t$. It is worth noting that the estimated gradient is linear but the degree of the actual realtionship between mass and capacity is unknown, so extrapolating masses from capacities outside of the original dataset used for the estimation may yield innacurate results. 
 
-To obtain this model, the mass of the battery was estimated using it's capacity
+The resulting graph shows that all models with this formula have no theoretical maximum, so there is no *best* battery. It also shows that the model can be influenced by tuning different parameters of the drone:
+
+$bias$ increases and decreases the flight time as expected, and the $0.01$ multiplier has the desired effect of lightening the effect of the change in bias on the overall flight time.
+
+$D$ (discharge) obviously increases the flight time as the discharge capacity is increased, as there is a greater capacity available to use.
+
+Increasing $I_c$ decreases flight time (also as expected).
+
+The $p$ value of the motors has a major impact on the overall flight time, since it directly affects the result of the flight intensity calculation which has a large impact on the formula.
+
+Reducing the $P_{MAX}$ value of the motor, also has a large benefit to the result of the calculation - since a lower $P_{MAX}$ with the same $p$ value means the motor is more power efficient, drawing less power.
+
+As the voltage $V$ of the battery increases, the flight time also increases beacause the result of the Power Consumption form for $t$ is directly influenced by the presence of $V$ in the denominator of its current draw estimation.
+
+Finally the reduction of $I_{MAX}$ increases the resulting flight time since $I_{MAX}$ is multiplied into the denominator of the Current Draw form for $t$.
+
+Carefully tuning these values within the constraints of the drone will maximise the flight time model, producing the best results for all batteries used.
 
 ## TODO
-- command to scrape and get multiplier
-
 - pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
 - web version?
 - support more battery retailer sites
