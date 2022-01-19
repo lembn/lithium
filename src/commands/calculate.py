@@ -7,24 +7,21 @@ from data.model import Model
     "modelfile",
     type=click.File(mode="r"),
 )
-## Main options
-@click.option(
-    "--capacity",
-    prompt=True,
-    help="The capacity of the battery (Ah).",
+@click.argument(
+    "capacity",
     type=click.FLOAT,
 )
-@click.option(
-    "--mass",
-    prompt=True,
-    help="The mass of the battery (kg).",
+@click.argument(
+    "mass",
     type=click.FLOAT,
 )
-@click.command()
+@click.command(short_help="Estimate for the flight time.")
 def calculate(modelfile, capacity, mass):
-    """Calculate an estimate for the flight time of drone using it's flight time model
+    """Calculate an estimate for the flight time of drone using it's flight time model.
 
-    MODELFILE - the relative file path of the model.json file to test aganst
+    MODELFILE - the relative file path of the model.json file to test aganst.
+    CAPACITY - The capacity of the battery (Ah).
+    MASS - The mass of the battery (kg).
     """
 
     model = Model.load(modelfile.read())

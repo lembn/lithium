@@ -1,35 +1,25 @@
-import console
 import click
+import console
+from data.compound import Compound
 from data.model import Model
 
-## Mandatory options
+## Graphing options
 @click.option(
-    "-m",
-    "--mass",
-    prompt=True,
-    help="Base mass of the drone [not including battery] (kg).",
-    type=click.FLOAT,
+    "--transparent",
+    help="A flag to represent if the graph image should have a transparent background",
+    is_flag=True,
+    type=click.BOOL,
+    show_default=True,
 )
 @click.option(
-    "-p",
-    "--pull",
-    prompt=True,
-    help="The pull produced by a single motor (kg).",
-    type=click.FLOAT,
+    "--format",
+    default="png",
+    help="File format of the graph image",
+    type=click.Choice(["png", "pdf", "svg"], case_sensitive=False),
+    show_default=True,
 )
 @click.option(
-    "-i",
-    "--constant-current",
-    prompt=True,
-    help="Total constant current draw of components (A).",
-    type=click.FLOAT,
-)
-@click.option(
-    "-v",
-    "--voltage",
-    prompt=True,
-    help="Voltage of the battery (V).",
-    type=click.FLOAT,
+    "--dpi", default=100, help="DPI of graph iamge", type=click.FLOAT, show_default=True
 )
 ## Optional options
 @click.option(
@@ -57,10 +47,10 @@ from data.model import Model
 )
 ## Advanced options
 @click.option(
-    "--bias",
-    default=0,
-    help="Flight Intensity bias.",
-    type=click.INT,
+    "--compound",
+    default=Compound.LIPO,
+    help="Value to multiply the battery capacity by to estimate mass.",
+    type=click.FLOAT,
     show_default=True,
 )
 @click.option(
@@ -71,29 +61,40 @@ from data.model import Model
     show_default=True,
 )
 @click.option(
-    "--multiplier",
-    default=0.072,  # TODO: get better default value
-    help="Value to multiply the battery capacity by to estimate mass.",
+    "--bias",
+    default=0,
+    help="Flight Intensity bias.",
+    type=click.INT,
+    show_default=True,
+)
+## Mandatory options
+@click.option(
+    "-v",
+    "--voltage",
+    prompt=True,
+    help="Voltage of the battery (V).",
     type=click.FLOAT,
-    show_default=True,
-)
-## Graphing options
-@click.option(
-    "--dpi", default=100, help="DPI of graph iamge", type=click.FLOAT, show_default=True
 )
 @click.option(
-    "--format",
-    default="png",
-    help="File format of the graph image",
-    type=click.Choice(["png", "pdf", "svg"], case_sensitive=False),
-    show_default=True,
+    "-p",
+    "--pull",
+    prompt=True,
+    help="The pull produced by a single motor (kg).",
+    type=click.FLOAT,
 )
 @click.option(
-    "--transparent",
-    help="A flag to represent if the graph image should have a transparent background",
-    is_flag=True,
-    type=click.BOOL,
-    show_default=True,
+    "-i",
+    "--constant-current",
+    prompt=True,
+    help="Total constant current draw of components (A).",
+    type=click.FLOAT,
+)
+@click.option(
+    "-m",
+    "--mass",
+    prompt=True,
+    help="Base mass of the drone [not including battery] (kg).",
+    type=click.FLOAT,
 )
 @click.command(short_help="Generate a model and save it's data to <output>")
 def generate(
@@ -106,7 +107,7 @@ def generate(
     i_max: float,
     bias: int,
     discharge: float,
-    multiplier: float,
+    compound: str,
     dpi: float,
     format: str,
     transparent: bool,
@@ -118,7 +119,7 @@ def generate(
         return
 
     model = Model(
-        mass, pull, constant_current, voltage, p_max, i_max, bias, discharge, multiplier
+        mass, pull, constant_current, voltage, p_max, i_max, bias, discharge, compound
     )
     model.save(output, dpi, format, transparent)
     console.info(f"Saved to {output}")

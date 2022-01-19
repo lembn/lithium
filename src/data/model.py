@@ -1,13 +1,19 @@
 from __future__ import annotations
-from dataclasses import dataclass
-import os
+
 import json
-import numpy as np
+import os
+from typing import Literal
+
 import matplotlib.pyplot as plt
+import numpy as np
+
+from data.compound import Compound
 
 
-@dataclass
 class Model:
+    # TODO: get better default value
+    multipliers: dict[str, float] = {Compound.LIPO: 0.072, Compound.LIION: 0.072}
+
     mass: float
     pull: float
     constant_current: float
@@ -15,7 +21,7 @@ class Model:
     maxes: dict[str, float]
     bias: int
     discharge: float
-    multiplier: float
+    compound: Literal[Compound.LIPO, Compound.LIION]
     version: str
 
     def __init__(
@@ -26,7 +32,7 @@ class Model:
         voltage: float,
         bias: int,
         discharge: float,
-        multiplier: float,
+        compound: Literal[Compound.LIPO, Compound.LIION],
         version: str = "1.0",
         p_max: float = float("-inf"),
         i_max: float = float("-inf"),
@@ -40,7 +46,7 @@ class Model:
             raise AttributeError("either p-max or i-max (or both) must be defined")
         self.bias = bias
         self.discharge = discharge
-        self.multiplier = multiplier
+        self.compound = compound
         self.version = version
 
     def __repr__(self):
@@ -56,7 +62,6 @@ class Model:
             data.voltage,
             data.bias,
             data.discharge,
-            data.multiplier,
             data.version,
             p_max=data.maxes.p,
             i_max=data.maxes.i,
@@ -95,9 +100,11 @@ class Model:
     def model(self, capacity: float, mass: float = 0) -> float:
         total = 0
         denominator = 0
+
         if mass == 0:
-            mass = self.multiplier * capacity
+            mass = Model.multipliers[self.compound] * capacity
         f = self.clip(mass + self.mass / self.pull + 0.001 * self.bias)
+
         if self.maxes["p"] > 0:
             total += (capacity * self.discharge) / (
                 self.constant_current + f * self.maxes["p"] / self.voltage

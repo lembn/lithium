@@ -1,39 +1,40 @@
 from console import info
 import click
+from data.compound import Compound
 from scraper import scrape
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
 
 @click.option(
-    "-c",
-    "--cells",
-    prompt=True,
-    help="Number of serial cells in the battery (S number).",
-    type=click.INT,
-)
-@click.option(
     "-d",
     "--domain",
     default="co.uk",
-    help="Domain to search on if choice is available (eg. com, co.uk, ca).",
-    type=click.STRING,
+    help="Domain to search on if choice is available.",
+    type=click.Choice(["co.uk", "com"]),
     show_default=True,
 )
 @click.option(
     "-p",
     "--pages",
     default=-1,
-    help="The number of product pages to take data from per site. Set to -1 to extract data from all pages",
+    help="The number of product pages to take data from per site. Set to -1 to extract data from all pages.",
     type=click.INT,
     show_default=True,
 )
 @click.option(
     "--compound",
-    default="lipo",
-    help="The chemical compound of the battery",
-    type=click.Choice(["lipo", "li-ion"]),
+    default=Compound.LIPO,
+    help="The chemical compound of the battery.",
+    type=click.Choice([Compound.LIPO, Compound.LIION]),
     show_default=True,
+)
+@click.option(
+    "-c",
+    "--cells",
+    prompt=True,
+    help="Number of serial cells in the battery (S number).",
+    type=click.INT,
 )
 @click.command(short_help="Estimate a multiplier used for generating models")
 def estimate(cells: int, domain: str, pages: int, compound: str):

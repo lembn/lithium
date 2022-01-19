@@ -16,9 +16,9 @@ def cli():
 # TODO: test commands
 if __name__ == "__main__":
     cli.add_command(commands.calculate)
-    cli.add_command(commands.show)
+    cli.add_command(commands.edit)
     cli.add_command(commands.estimate)
     cli.add_command(commands.generate)
     cli.add_command(commands.graph)
-    cli.add_command(commands.edit)
+    cli.add_command(commands.show)
     cli(prog_name="lithium")

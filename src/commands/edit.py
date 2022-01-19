@@ -1,6 +1,7 @@
+import json
+
 import click
 from data.model import Model
-import json
 
 
 @click.command()

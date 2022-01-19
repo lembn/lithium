@@ -6,7 +6,11 @@ from console import info
 
 @click.argument("modelfiles", nargs=-1, type=click.File(mode="r"))
 @click.option(
-    "--dpi", default=100, help="DPI of graph iamge", type=click.FLOAT, show_default=True
+    "--transparent",
+    help="A flag to represent if the graph image should have a transparent background",
+    is_flag=True,
+    type=click.BOOL,
+    show_default=True,
 )
 @click.option(
     "--format",
@@ -16,11 +20,7 @@ from console import info
     show_default=True,
 )
 @click.option(
-    "--transparent",
-    help="A flag to represent if the graph image should have a transparent background",
-    is_flag=True,
-    type=click.BOOL,
-    show_default=True,
+    "--dpi", default=100, help="DPI of graph iamge", type=click.FLOAT, show_default=True
 )
 @click.command(short_help="Creates graphs for models")
 def graph(
