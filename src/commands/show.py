@@ -1,5 +1,4 @@
 import click
-from calc import score_battery
 import numpy as np
 import matplotlib.pyplot as plt
 from data.model import Model
@@ -13,9 +12,10 @@ def show(modelfiles: tuple[str]):
     for modelfile in modelfiles:
         model = Model.load(modelfile.read())
         X = np.arange(0, 12, 0.1)
-        y = np.array([score_battery(x, model) for x in X])
+        y = np.array([model.model_capacity(x) for x in X])
         plt.plot(X, y)
 
     ax = plt.axes()
     ax.set_xlabel("Capacity (Ah)")
     ax.set_ylabel("Flight Time (mins)")
+    plt.show()

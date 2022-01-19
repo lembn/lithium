@@ -31,56 +31,71 @@ from data.model import Model
     help="Voltage of the battery (V).",
     type=click.FLOAT,
 )
+## Optional options
 @click.option(
     "-o",
     "--output",
-    prompt=True,
+    default="./",
     help="The relative folder path to save the model data to.",
-    type=click.STRING,
+    type=click.Path(),
     metavar="<output>",
+    show_default=True,
 )
-## Optional options
 @click.option(
     "--p-max",
     default=0,
     help="Maximum power consumption of a single motor (W).",
     type=click.FLOAT,
+    show_default=True,
 )
 @click.option(
     "--i-max",
     default=0,
     help="Maximum current drawn by a single motor (A).",
     type=click.FLOAT,
+    show_default=True,
 )
 ## Advanced options
-@click.option("--bias", default=0, help="Flight Intensity bias.", type=click.INT)
+@click.option(
+    "--bias",
+    default=0,
+    help="Flight Intensity bias.",
+    type=click.INT,
+    show_default=True,
+)
 @click.option(
     "--discharge",
     default=0.8,
     help="Discharge percentage of the battery (decimal form).",
     type=click.FLOAT,
+    show_default=True,
 )
 @click.option(
     "--multiplier",
     default=0.072,  # TODO: get better default value
     help="Value to multiply the battery capacity by to estimate mass.",
     type=click.FLOAT,
+    show_default=True,
 )
 ## Graphing options
-@click.option("--dpi", default=100, help="DPI of graph iamge", type=click.FLOAT)
+@click.option(
+    "--dpi", default=100, help="DPI of graph iamge", type=click.FLOAT, show_default=True
+)
 @click.option(
     "--format",
     default="png",
     help="File format of the graph image",
     type=click.Choice(["png", "pdf", "svg"], case_sensitive=False),
+    show_default=True,
 )
 @click.option(
     "--transparent",
     help="A flag to represent if the graph image should have a transparent background",
     is_flag=True,
     type=click.BOOL,
+    show_default=True,
 )
-@click.command()
+@click.command(short_help="Generate a model and save it's data to <output>")
 def generate(
     mass: float,
     pull: float,

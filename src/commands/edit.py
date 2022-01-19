@@ -5,11 +5,11 @@ import json
 
 @click.command()
 @click.argument("modelfile", type=click.File(mode="r"))
-def edit(modelpath: tuple[str]):
+def edit(modelfile: tuple[str]):
     """Edit the model specified by MODELFILE"""
 
     model = Model.load(modelfile.read())
-    title = f"# Editing MODEL@{modelpath}:"
+    title = f"# Editing MODEL@{modelfile}:"
     message = click.edit(f"\n\n{title}\n{model}")
     if message is not None:
         model_json = json.loads(message.split(title, 1)[0].strip("\n"))
