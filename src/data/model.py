@@ -5,7 +5,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-# TODO remove duplicate code from model functions
+
 @dataclass
 class Model:
     mass: float
@@ -92,7 +92,6 @@ class Model:
             f"{output}/model.png", dpi=dpi, format=format, transparent=transparent
         )
 
-    #TODO refactor old model code
     def model(self, capacity: float, mass: float = 0) -> float:
         total = 0
         denominator = 0

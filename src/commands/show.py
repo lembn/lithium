@@ -12,7 +12,7 @@ def show(modelfiles: tuple[str]):
     for modelfile in modelfiles:
         model = Model.load(modelfile.read())
         X = np.arange(0, 12, 0.1)
-        y = np.array([model.model_capacity(x) for x in X])
+        y = np.array([model.model(x) for x in X])
         plt.plot(X, y)
 
     ax = plt.axes()

@@ -28,4 +28,4 @@ def calculate(modelfile, capacity, mass):
     """
 
     model = Model.load(modelfile.read())
-    info(f"\n RESULT: {model.score_battery(capacity, mass)} minutes")
+    info(f"\n RESULT: {model.model(capacity, mass=mass)} minutes")
