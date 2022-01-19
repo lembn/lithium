@@ -1,11 +1,11 @@
+from __future__ import annotations
 from dataclasses import dataclass
 import os
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-from calc import score
 
-
+# TODO remove duplicate code from model functions
 @dataclass
 class Model:
     mass: float
@@ -44,7 +44,7 @@ class Model:
         self.version = version
 
     @staticmethod
-    def load(self, path: str) -> Model:
+    def load(path: str) -> Model:
         with open(path, "r") as infile:
             data = json.loads(infile.read())
             return Model(
@@ -71,7 +71,7 @@ class Model:
         self, output: str, dpi: float, format: str, transparent: bool
     ) -> None:
         X = np.arange(0, 12, 0.1)
-        y = np.array([score(x, self) for x in X])
+        y = np.array([self.model(x) for x in X])
 
         ax = plt.axes()
         plt.plot(X, y)
@@ -81,26 +81,54 @@ class Model:
             f"{output}/model.png", dpi=dpi, format=format, transparent=transparent
         )
 
-    def adjust(
-        self,
-        mass: float,
-        pull: float,
-        constant_current: float,
-        voltage: float,
-        bias: int,
-        p_max: float,
-        i_max: float,
-        discharge: float,
-        multiplier: float,
-    ) -> None:
-        self.mass = mass if mass != None else self.mass
-        self.pull = pull if pull != None else self.pull
-        self.constant_current = (
-            constant_current if constant_current != None else self.constant_current
+    def model_capacity(self, capacity: float) -> float:
+        def clip(x: float) -> float:
+            if x <= 0:
+                return 0
+            elif x >= 1:
+                return 1
+            else:
+                return x
+
+        total = 0
+        denominator = 0
+        f = clip(
+            (self.multiplier * capacity + self.mass) / self.pull + 0.001 * self.bias
         )
-        self.voltage = voltage if voltage != None else self.voltage
-        self.p_max = p_max if p_max != None else self.p_max
-        self.i_max = i_max if i_max != None else self.i_max
-        self.bias = bias if bias != None else self.bias
-        self.discharge = discharge if discharge != None else self.discharge
-        self.multiplier = multiplier if multiplier != None else self.multiplier
+        if self.maxes["p"] > 0:
+            total += (capacity * self.discharge) / (
+                self.constant_current + f * self.maxes["p"] / self.voltage
+            )
+            denominator += 1
+        if self.maxes["i"] > 0:
+            total += (capacity * self.discharge) / (
+                self.constant_current + f * self.maxes["i"]
+            )
+            denominator += 1
+
+        return total / denominator * 60
+
+    def model_battery(self, capacity: float, mass: float) -> float:
+        def clip(x: float) -> float:
+            if x <= 0:
+                return 0
+            elif x >= 1:
+                return 1
+            else:
+                return x
+
+        total = 0
+        denominator = 0
+        f = clip(mass + self.mass / self.pull + 0.001 * self.bias)
+        if self.maxes["p"] > 0:
+            total += (capacity * self.discharge) / (
+                self.constant_current + f * self.maxes["p"] / self.voltage
+            )
+            denominator += 1
+        if self.maxes["i"] > 0:
+            total += (capacity * self.discharge) / (
+                self.constant_current + f * self.maxes["i"]
+            )
+            denominator += 1
+
+        return total / denominator * 60

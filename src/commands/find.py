@@ -1,7 +1,6 @@
 import click
 
 
-@click.command()
 @click.option(
     "-d",
     "--domain",
@@ -9,6 +8,7 @@ import click
     help="Domain to search on if choice is available (eg. com, co.uk, ca).",
     type=click.STRING,
 )
+@click.command(short_help="Recommend Lithium Polymer batteries")
 def find():
     """Recommend Lithium Polymer batteries sold by online e-tailers that will work well
     with a given model"""

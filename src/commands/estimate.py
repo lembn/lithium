@@ -5,7 +5,6 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 
 
-@click.command()
 @click.option(
     "-c",
     "--cells",
@@ -26,11 +25,20 @@ from sklearn.linear_model import LinearRegression
     default=-1,
     help="The number of product pages to take data from per site. Set to -1 to extract data from all pages",
     type=click.INT,
+    show_default=True,
 )
-def estimate(cells: int, domain: str, pages: int):
-    """Extract data of existing Lithium Polymer batteries from online e-tailers to estimate
+@click.option(
+    "--compound",
+    default="lipo",
+    help="The chemical compound of the battery",
+    type=click.Choice(["lipo", "li-ion"]),
+    show_default=True,
+)
+@click.command(short_help="Estimate a multiplier used for generating models")
+def estimate(cells: int, domain: str, pages: int, compound: str):
+    """Extract data of existing batteries from online e-tailers to estimate
     the relationship between capacity and mass. This estimate results is the multiplier used when generating models"""
-    count, data_gen = scrape(cells, domain, pages)
+    count, data_gen = scrape(cells, domain, pages, compound)
     capacities = []
     masses = []
 
