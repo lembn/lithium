@@ -13,6 +13,7 @@ def cli():
     pass
 
 
+# TODO: test commands
 if __name__ == "__main__":
     cli.add_command(commands.calculate)
     cli.add_command(commands.show)

@@ -62,6 +62,15 @@ class Model:
             i_max=data.maxes.i,
         )
 
+    @staticmethod
+    def clip(x: float) -> float:
+        if x <= 0:
+            return 0
+        elif x >= 1:
+            return 1
+        else:
+            return x
+
     def save(self, output: str, dpi: float, format: str, transparent: bool) -> None:
         if not os.path.exists(output):
             os.mkdirs(output)
@@ -83,45 +92,13 @@ class Model:
             f"{output}/model.png", dpi=dpi, format=format, transparent=transparent
         )
 
-    def model_capacity(self, capacity: float) -> float:
-        def clip(x: float) -> float:
-            if x <= 0:
-                return 0
-            elif x >= 1:
-                return 1
-            else:
-                return x
-
+    #TODO refactor old model code
+    def model(self, capacity: float, mass: float = 0) -> float:
         total = 0
         denominator = 0
-        f = clip(
-            (self.multiplier * capacity + self.mass) / self.pull + 0.001 * self.bias
-        )
-        if self.maxes["p"] > 0:
-            total += (capacity * self.discharge) / (
-                self.constant_current + f * self.maxes["p"] / self.voltage
-            )
-            denominator += 1
-        if self.maxes["i"] > 0:
-            total += (capacity * self.discharge) / (
-                self.constant_current + f * self.maxes["i"]
-            )
-            denominator += 1
-
-        return total / denominator * 60
-
-    def model_battery(self, capacity: float, mass: float) -> float:
-        def clip(x: float) -> float:
-            if x <= 0:
-                return 0
-            elif x >= 1:
-                return 1
-            else:
-                return x
-
-        total = 0
-        denominator = 0
-        f = clip(mass + self.mass / self.pull + 0.001 * self.bias)
+        if mass == 0:
+            mass = self.multiplier * capacity
+        f = self.clip(mass + self.mass / self.pull + 0.001 * self.bias)
         if self.maxes["p"] > 0:
             total += (capacity * self.discharge) / (
                 self.constant_current + f * self.maxes["p"] / self.voltage
