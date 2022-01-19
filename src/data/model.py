@@ -43,28 +43,30 @@ class Model:
         self.multiplier = multiplier
         self.version = version
 
+    def __repr__(self):
+        return json.dumps(__dict__)
+
     @staticmethod
-    def load(self, path: str) -> Model:
-        with open(path, "r") as infile:
-            data = json.loads(infile.read())
-            return Model(
-                data.mass,
-                data.pull,
-                data.constant_current,
-                data.voltage,
-                data.bias,
-                data.discharge,
-                data.multiplier,
-                data.version,
-                p_max=data.maxes.p,
-                i_max=data.maxes.i,
-            )
+    def load(self, json_str: str) -> Model:
+        data = json.loads(json_str)
+        return Model(
+            data.mass,
+            data.pull,
+            data.constant_current,
+            data.voltage,
+            data.bias,
+            data.discharge,
+            data.multiplier,
+            data.version,
+            p_max=data.maxes.p,
+            i_max=data.maxes.i,
+        )
 
     def save(self, output: str, dpi: float, format: str, transparent: bool) -> None:
         if not os.path.exists(output):
             os.mkdirs(output)
             with open(f"{output}/model.json", "w") as outfile:
-                outfile.write(json.dumps(__dict__))
+                outfile.write(self.__repr__())
         self.save_graph(output, dpi, format, transparent)
 
     def save_graph(

@@ -4,7 +4,7 @@ import click
 from console import info
 
 
-@click.argument("modelpaths", nargs=-1, type=click.Path(exists=True))
+@click.argument("modelfiles", nargs=-1, type=click.File(mode="r"))
 @click.option("--dpi", default=100, help="DPI of graph iamge", type=click.FLOAT)
 @click.option(
     "--format",
@@ -20,15 +20,15 @@ from console import info
 )
 @click.command()
 def graph(
-    modelpaths: tuple[str],
+    modelfiles: tuple[str],
     dpi: float,
     format: str,
     transparent: bool,
 ):
-    "Creates graphs for all the models specified in MODELPATHS"
+    "Creates graphs for all the models specified in MODELFILES"
 
-    for modelpath in modelpaths:
-        model = Model.load(modelpath)
-        outfile = os.path.dirname(f"{modelpath}/model.png")
+    for modelfile in modelfiles:
+        model = Model.load(modelfile)
+        outfile = os.path.dirname(f"{modelfile}/model.png")
         model.save_graph(outfile, dpi, format, transparent)
         info(f"Saved to {outfile}")

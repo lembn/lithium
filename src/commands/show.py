@@ -6,12 +6,12 @@ from data.model import Model
 
 
 @click.command()
-@click.argument("modelpaths", nargs=-1, type=click.Path(exists=True))
-def compare(modelpaths: tuple[str]):
-    """Compare the models specified by MODELPATHS"""
+@click.argument("modelfiles", nargs=-1, type=click.File(mode="r"))
+def show(modelfiles: tuple[str]):
+    """Show the graphs of one or many models specified by MODELFILES"""
 
-    for modelpath in modelpaths:
-        model = Model.load(modelpath)
+    for modelfile in modelfiles:
+        model = Model.load(modelfile.read())
         X = np.arange(0, 12, 0.1)
         y = np.array([score_battery(x, model) for x in X])
         plt.plot(X, y)

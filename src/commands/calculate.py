@@ -5,8 +5,8 @@ from calc import score_battery
 
 
 @click.argument(
-    "modelpath",
-    type=click.STRING,
+    "modelfile",
+    type=click.File(mode="r"),
 )
 ## Main options
 @click.option(
@@ -72,12 +72,12 @@ from calc import score_battery
     type=click.FLOAT,
 )
 @click.command()
-def calculate(modelpath, capacity, mass, m, p, i, c, pm, im, b, d):
+def calculate(modelfile, capacity, mass, m, p, i, c, pm, im, b, d):
     """Calculate an estimate for the flight time of drone using it's flight time model
 
     MODEL - the relative file path of the model.json file to test aganst
     """
 
-    model = Model.load(modelpath)
+    model = Model.load(modelfile.read())
     model.adjust(m, p, i, c, pm, im, b, d)
     info(f"\n RESULT: {score_battery(capacity, mass, model)} minutes")

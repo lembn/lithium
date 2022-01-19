@@ -21,4 +21,5 @@ if __name__ == "__main__":
     cli.add_command(commands.graph)
     cli.add_command(commands.find)
     cli.add_command(commands.calculate)
-    cli.add_command(commands.compare)
+    cli.add_command(commands.show)
+    cli.add_command(commands.edit)
