@@ -7,12 +7,11 @@ from typing import Literal
 import matplotlib.pyplot as plt
 import numpy as np
 
-from data.compound import Compound
-
 
 class Model:
     # TODO: get better default value
-    multipliers: dict[str, float] = {Compound.LIPO: 0.072, Compound.LIION: 0.072}
+    multipliers: dict[str, float] = {"lipo": 0.072, "li-ion": 0.072}
+    compounds: list[str] = list(multipliers.keys())
 
     mass: float
     pull: float
@@ -21,7 +20,7 @@ class Model:
     maxes: dict[str, float]
     bias: int
     discharge: float
-    compound: Literal[Compound.LIPO, Compound.LIION]
+    compound: Literal["lipo", "li-ion"]
     version: str
 
     def __init__(
@@ -32,7 +31,7 @@ class Model:
         voltage: float,
         bias: int,
         discharge: float,
-        compound: Literal[Compound.LIPO, Compound.LIION],
+        compound: Literal["lipo", "li-ion"],
         version: str = "1.0",
         p_max: float = float("-inf"),
         i_max: float = float("-inf"),
@@ -50,7 +49,21 @@ class Model:
         self.version = version
 
     def __repr__(self):
-        return json.dumps(__dict__)
+        return json.dumps(
+            {
+                "mass": self.mass,
+                "pull": self.pull,
+                "constant_current": self.constant_current,
+                "voltage": self.voltage,
+                "maxes": self.maxes,
+                "bias": self.bias,
+                "discharge": self.discharge,
+                "compound": self.compound,
+                "version": self.version,
+            },
+            indent=4,
+            sort_keys=True,
+        )
 
     @staticmethod
     def load(json_str: str) -> Model:
@@ -77,10 +90,11 @@ class Model:
             return x
 
     def save(self, output: str, dpi: float, format: str, transparent: bool) -> None:
+        output = os.path.abspath(output)
         if not os.path.exists(output):
-            os.mkdirs(output)
-            with open(f"{output}/model.json", "w") as outfile:
-                outfile.write(self.__repr__())
+            os.makedirs(output)
+        with open(f"{output}/model.json", "w") as outfile:
+            outfile.write(repr(self))
         self.save_graph(output, dpi, format, transparent)
 
     def save_graph(
@@ -103,7 +117,11 @@ class Model:
 
         if mass == 0:
             mass = Model.multipliers[self.compound] * capacity
-        f = self.clip(mass + self.mass / self.pull + 0.001 * self.bias)
+        # f = self.clip((mass + self.mass) / self.pull + 0.001 * self.bias)
+        f = (mass + self.mass) / self.pull + 0.001 * self.bias
+        print(f"mass is: " + str(mass + self.mass))
+        print(f"pull is: " + str(self.pull))
+        print(f * 100)
 
         if self.maxes["p"] > 0:
             total += (capacity * self.discharge) / (

@@ -1,6 +1,6 @@
 from console import info
 import click
-from data.compound import Compound
+from data.model import Model
 from scraper import scrape
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -24,9 +24,9 @@ from sklearn.linear_model import LinearRegression
 )
 @click.option(
     "--compound",
-    default=Compound.LIPO,
+    default=Model.compounds[0],
     help="The chemical compound of the battery.",
-    type=click.Choice([Compound.LIPO, Compound.LIION]),
+    type=click.Choice(Model.compounds),
     show_default=True,
 )
 @click.option(

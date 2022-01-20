@@ -1,0 +1,14 @@
+{
+    "bias": 0,
+    "compound": "lipo",
+    "constant_current": 1.0,
+    "discharge": 0.8,
+    "mass": 0.5,
+    "maxes": {
+        "i": 10.6,
+        "p": 118.0
+    },
+    "pull": 0.71,
+    "version": "1.0",
+    "voltage": 11.1
+}

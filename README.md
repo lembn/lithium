@@ -86,18 +86,9 @@ $$F = \frac{m \cdot G}{N \cdot p \cdot G} = \frac{m}{N \cdot p}$$
 
 As you can see, the substitution of $pG$ for $T$ simplified our expression, as the $G$s in the fraction cancelled each other out. This is why manufacturers perfer to supply pull values rather than thrust: it makes calculations that use weight against thrust much simpler.
 
-As mentioned earlier, this expression for $F$ is only a baseline, different builds may run at different average thrusts and the expression for $F$ needs to be able to account for this. To do this, we'll introduce a value, $b$ to act as a bias and add it to our current expression for $F$. The desired effect of the bias is to offset the resultant value in a particular direction by some magnitude. Since $F$ isrepresents a percentage, we'll also introduce a clipped linear function, $f$ to ensure that our values never go above 1 or below 0.
+As mentioned earlier, this expression for $F$ is only a baseline, different builds may run at different average thrusts and the expression for $F$ needs to be able to account for this. To do this, we'll introduce a value, $b$ to act as a bias and add it to our current expression for $F$. The desired effect of the bias is to offset the resultant value in a particular direction by some magnitude. Note how since $F$ represents a percentage, any $F > 1$ or $< 0$ is invalid, so these bounds define the limits of our model.
 
-$$
-\text{let } clip(x) =
-	\begin{cases}
-		0, \quad x \leq 0 \\
-		x, \quad 0 < x < 1 \\
-		1, \quad 1 \leq x
-	\end{cases}
-$$
-
-$$F = clip(\frac{m}{N \cdot p} + 0.001b)$$
+$$F = clip(\frac{m}{N \cdot p} + 0.005b)$$
 
 As you can see, the introduction of $b$ makes $F$ more adaptable, allowing the value to be offset, but also allowing remain $F$ to remain general if $b = 0$. The multiplier applied to $b$ is there to soften the effect that the bias value has on the value of $F$.
 
@@ -108,16 +99,15 @@ Another thing to notice here is that $F$ contains $N$ in it's denominator, and i
 > $\text{Current Draw Form:}$ $$t_2 = \frac{c \cdot D}{I_c + F \cdot I_{MAX}}$$
 >
 > $\text{Where}$
-> $$ clip(x) = \begin{cases} 0, \quad x \leq 0 \\ x, \quad 0 < x < 1 \\ 1, \quad 1 \leq x \end{cases}$$
 > $$F = clip(\frac{m}{p} + 0.001b)$$
 
 Each of these forms is very simple, since we achieved our orignal goal of dividing the total usable capacity of the battery by some estimated average current draw.
 
-In theory, $t_1$ and $t_2$ will be equal, since even though the expressions are different, they'ds both using some method to find the variable part of $\text{ACD}$. $t_1$ is the theoretical value (derived from the equation for electrical power), while $t_2$ is the practical value reported by the manufacturer. We will take $t$ to be the mean average between $t_1$ and $t_2$:
+Since we have two expressions for $t$, we will take $t$ to be the mean average between $t_1$ and $t_2:$
 
-> $$ clip(x) = \begin{cases} 0, \quad x \leq 0 \\ x, \quad 0 < x < 1 \\ 1, \quad 1 \leq x \end{cases}$$
-> $$F = clip(\frac{m}{p} + 0.001b)$$
+> $$F = \frac{m}{p} + 0.001b$$
 > $$t = \frac{\frac{c \cdot D}{I_c + \frac{F \cdot P_{MAX}}{V}} + \frac{c \cdot D}{I_c + F \cdot I_{MAX}}}{2}$$
+> $$\{c > 0\}, \{0 \leq F \leq 1\}$$
 
 > _Where:_
 >
@@ -133,13 +123,15 @@ In theory, $t_1$ and $t_2$ will be equal, since even though the expressions are 
 > - $I_{MAX}$ _is the maximum current drawn by a single motor (**A**)_
 
 ## The Function
-<iframe src="https://www.desmos.com/calculator/uii8rmxzki?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
+<iframe src="https://www.desmos.com/calculator/ck53boit33?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
 
 [This](https://www.desmos.com/calculator/ivuhbxfa4n) is the estimation for the CEDRIC drone's battery life model. The model was obtained by estimating the relationship between battery mass and battery capacity, which resulted in a gradient which could be used for expressing mass in terms of capaicty, meaning there is only one unknown variable in the expression for $t$. It is worth noting that the estimated gradient is linear but the degree of the actual realtionship between mass and capacity is unknown, so extrapolating masses from capacities outside of the original dataset used for the estimation may yield innacurate results. 
 
-The resulting graph shows that all models with this formula have no theoretical maximum, so there is no *best* battery. It also shows that the model can be influenced by tuning different parameters of the drone:
+Think back to earlier when we said that the function will be bounded by $F$. This is beacuse $F$ cannot be negative or greater than 1. $F<0$ represents a physically impossible weight to thrust ration, and when $F=1$ the entire thrust is being used to make the drone hover. This means that if $F>1$, the drone would be so heavy that it would require more thrust to hover than the motors are capable of producing - the drone would not be able to fly. Therefore, the best possible battery is
 
-$bias$ increases and decreases the flight time as expected, and the $0.01$ multiplier has the desired effect of lightening the effect of the change in bias on the overall flight time.
+It also shows that the model can be influenced by tuning different parameters of the drone:
+
+$bias$ increases and decreases the flight time as expected, and the $0.005$ multiplier has the desired effect of softening the effect of the change in bias on the overall flight time.
 
 $D$ (discharge) obviously increases the flight time as the discharge capacity is increased, as there is a greater capacity available to use.
 
@@ -156,6 +148,14 @@ Finally the reduction of $I_{MAX}$ increases the resulting flight time since $I_
 Carefully tuning these values within the constraints of the drone will maximise the flight time model, producing the best results for all batteries used.
 
 ## TODO
+- $F$ is the scalar reciprocal of T:W ratio
+- To optimse flight we can't just take the highest point on the graph, because at that point, $F=1$ so it wont take off. Instead we'll take a target $F$ and solve for $c$ from that
+- To improve the performance of a battery against a model, we need to reduce $F_{base}$ and $F_{gradient}$ which moves the $F_{target}$ further along the graph.
+- To improve the performance of the model itself, we tweak $I_c$, $P_{MAX}$, $I_{MAX}$, $V$
+- `meta.json` ($F_{base}$, $F_{gradient}$, max capacity)
+- draw an $F$ graph underneath $t$ graph
+- shade $t$ and $F$ grapgh for $F \geq 0.9$ cos it won't take off
+	- find a better value than $0.9$
 - pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
 - web version?
 - support more battery retailer sites

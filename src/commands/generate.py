@@ -1,6 +1,5 @@
 import click
 import console
-from data.compound import Compound
 from data.model import Model
 
 ## Graphing options
@@ -26,7 +25,7 @@ from data.model import Model
     "-o",
     "--output",
     default="./",
-    help="The relative folder path to save the model data to.",
+    help="The relative path of the directory to save the model data to.",
     type=click.Path(),
     metavar="<output>",
     show_default=True,
@@ -48,9 +47,9 @@ from data.model import Model
 ## Advanced options
 @click.option(
     "--compound",
-    default=Compound.LIPO,
-    help="Value to multiply the battery capacity by to estimate mass.",
-    type=click.FLOAT,
+    default=Model.compounds[0],
+    help="The chemical compound of the battery.",
+    type=click.Choice(Model.compounds),
     show_default=True,
 )
 @click.option(
@@ -117,9 +116,17 @@ def generate(
     if not p_max and not i_max:
         console.warn("either p-max or i-max (or both) must be defined.")
         return
-
+    output = output.strip()
     model = Model(
-        mass, pull, constant_current, voltage, p_max, i_max, bias, discharge, compound
+        mass,
+        pull,
+        constant_current,
+        voltage,
+        bias,
+        discharge,
+        compound,
+        p_max=p_max,
+        i_max=i_max,
     )
     model.save(output, dpi, format, transparent)
     console.info(f"Saved to {output}")
