@@ -1,17 +1,29 @@
 import json
+from tkinter import E
+import output
 
 import click
-from data.model import Model
+from model import Model
 
 
-@click.command()
+@click.command(short_help="Edit a model")
 @click.argument("modelfile", type=click.File(mode="r"))
-def edit(modelfile: tuple[str]):
-    """Edit the model specified by MODELFILE"""
+def edit(modelfile: click.File):
+    """Edit the model specified by MODELFILE. All the model's files will be updated to reflect these changes"""
 
     model = Model.load(modelfile.read())
-    title = f"# Editing MODEL@{modelfile}:"
-    message = click.edit(f"\n\n{title}\n{model}")
-    if message is not None:
-        model_json = json.loads(message.split(title, 1)[0].strip("\n"))
-        model = Model.load(model_json)
+    title = f"# Editing {model.name}@{modelfile.name}:"
+    text = click.edit(f"\n\n{title}\n{model}")
+    if text is not None:
+        text = text.replace("\n", "")
+        text = text.replace("    ", "")
+        text = text.replace(title, "")
+        try:
+            model = Model.load(text)
+            model.save()
+        except KeyError as e:
+            output.msg(
+                f"invalid modelfile - failed to locate '{e}'\nRolling back...",
+                "ERROR",
+                "red",
+            )

@@ -1,19 +1,19 @@
 import click
-from console import info
-from data.model import Model
+from output import msg
+from model import Model
 
 
 @click.argument(
-    "modelfile",
-    type=click.File(mode="r"),
+    "mass",
+    type=click.FLOAT,
 )
 @click.argument(
     "capacity",
     type=click.FLOAT,
 )
 @click.argument(
-    "mass",
-    type=click.FLOAT,
+    "modelfile",
+    type=click.File(mode="r"),
 )
 @click.command(short_help="Estimate for the flight time.")
 def calculate(modelfile, capacity, mass):
@@ -26,4 +26,8 @@ def calculate(modelfile, capacity, mass):
     """
 
     model = Model.load(modelfile.read())
-    info(f"\n RESULT: {model.model(capacity, mass=mass)} minutes")
+    predicted_mins, predicted_f = model.model(capacity)
+    predicted_result = f"PREDICTED\n  - mins: {predicted_mins}\n  - F={predicted_f}"
+    actual_mins, actual_f = model.model(capacity, battery_mass=mass)
+    actual_result = f"ACTUAL\n  - mins: {actual_mins}\n  - F={actual_f}"
+    msg(f"\nFor the given battery capacity:\n{predicted_result}\n{actual_result}")

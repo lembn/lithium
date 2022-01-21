@@ -1,21 +1,27 @@
+import random
 import click
-import numpy as np
 import matplotlib.pyplot as plt
-from data.model import Model
+from model import Model
+import output
 
 
 @click.command()
 @click.argument("modelfiles", nargs=-1, type=click.File(mode="r"))
-def show(modelfiles: tuple[str]):
-    """Show the graphs of one or many models specified by MODELFILES"""
+def show(modelfiles: tuple[click.File]):
+    """Show the graphs of one to six models specified by MODELFILES"""
+
+    axs = output.get_axs()
+    colours = ["#EE6666", "#3388BB", "#9988DD", "#EECC55", "#88BB44", "#FFBBBB"]
 
     for modelfile in modelfiles:
         model = Model.load(modelfile.read())
-        X = np.arange(0, 12, 0.1)
-        y = np.array([model.model(x) for x in X])
-        plt.plot(X, y)
+        x, y, _ = model.points()
+        colour = random.choice(colours)
+        colours.remove(colour)
+        axs[0].plot(x, y, colour, label=model.name)  # TODO cycle colours
+        x, y, _ = model.points(plot_f=True)
+        axs[1].plot(x, y, colour, label=model.name)  # TODO cycle colours
 
-    ax = plt.axes()
-    ax.set_xlabel("Capacity (Ah)")
-    ax.set_ylabel("Flight Time (mins)")
+    axs[0].legend()
+    axs[1].legend()
     plt.show()

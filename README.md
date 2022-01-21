@@ -89,30 +89,30 @@ We know the acceleration of $W$, which is the gravitational field strength - bec
 $$F = \frac{m}{N \cdot p}$$
 
 > Where:
-> $m$ is the mass of the drone
+> $m$ is the total mass of the drone
 > $N$ is the number of motors on the drone
 > $p$ is the pull value of each motor
 
 As mentioned earlier, this expression for $F$ is only a baseline, different builds may run at different average thrusts and the expression for $F$ needs to be able to account for this. To do this, we'll introduce a value, $b$ to act as a bias and add it to our current expression for $F$. The desired effect of the bias is to offset the resultant value in a particular direction by some magnitude. Note how since $F$ represents a proportion of the maximal values of the motors, any $F > 1$ or $< 0$ is invalid, so these bounds define the limits of our model.
 
-$$F = \frac{m}{N \cdot p} + 0.005b$$
+$$F = \frac{m + 0.005b}{N \cdot p}$$
 
 As you can see, the introduction of $b$ makes $F$ more adaptable, allowing the value to be offset, but also allowing remain $F$ to remain general if $b = 0$. The $0.005$ multiplier applied to $b$ is there to soften the effect that the bias value has on the value of $F$.
 
-Another thing to notice here is that $F$ contains $N$ in it's denominator, and in both of our forms for $T$, we multiply $F$ by $N$. Because of this, $N$ cancels out and we can remove it from our equations entirely. Now we have the forms for $t$ with $F$:
+Another thing to notice here is that fraction in $F$ contains $N$ in it's denominator, and in both of our forms for $T$, we multiply $F$ by $N$. Because of this if we move the bias into the numerator, $N$ will cancel out in all the places $F$ is used and we can remove it from our equations entirely. Now we have the forms for $t$ with $F$:
 
 > $\text{Power Consumption Form:}$ $$t_1 = \frac{c \cdot D}{I_c + \frac{F \cdot P_{MAX}}{V}}$$
 >
 > $\text{Current Draw Form:}$ $$t_2 = \frac{c \cdot D}{I_c + F \cdot I_{MAX}}$$
 >
 > $\text{Where}$
-> $$F = clip(\frac{m}{p} + 0.005b)$$
+> $$F = \frac{m + 0.005b}{p}$$
 
 Each of these forms is very simple, since we achieved our orignal goal of dividing the total usable capacity of the battery by some estimated average current draw.
 
 Since we have two expressions for $t$, we will take $t$ to be the mean average between $t_1$ and $t_2:$
 
-> $$F = \frac{m}{p} + 0.005b$$
+> $$F = \frac{m + 0.005b}{p}$$
 > $$t = \frac{\frac{c \cdot D}{I_c + \frac{F \cdot P_{MAX}}{V}} + \frac{c \cdot D}{I_c + F \cdot I_{MAX}}}{2}$$
 > $$\{c > 0\}, \{0 \leq F \leq 1\}$$
 
@@ -130,9 +130,9 @@ Since we have two expressions for $t$, we will take $t$ to be the mean average b
 > - $I_{MAX}$ _is the maximum current drawn by a single motor (**A**)_
 
 ## The Function
-<iframe src="https://www.desmos.com/calculator/g4pzjv4wp8?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
+<iframe src="https://www.desmos.com/calculator/wvrl1dd9h7?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
 
-[This](https://www.desmos.com/calculator/g4pzjv4wp8) is the estimation for the CEDRIC drone's battery life model. The model was obtained by estimating the relationship between battery mass and battery capacity, which resulted in a gradient which could be used for expressing mass in terms of capaicty, leaving only one unknown variable in the expression for $t$m allowing the graph to be expressed in two dimensions. It is worth noting that the estimated gradient is linear but the degree of the actual realtionship between mass and capacity is unknown, so extrapolating masses from capacities outside of the original dataset used for the estimation may yield innacurate results. 
+[This](https://www.desmos.com/calculator/wvrl1dd9h7) is the estimation for the CEDRIC drone's battery life model. The model was obtained by estimating the relationship between battery mass and battery capacity, which resulted in a gradient which could be used for expressing mass in terms of capaicty, leaving only one unknown variable in the expression for $t$m allowing the graph to be expressed in two dimensions. It is worth noting that the estimated gradient is linear but the degree of the actual realtionship between mass and capacity is unknown, so extrapolating masses from capacities outside of the original dataset used for the estimation may yield innacurate results. 
 
 The shaded area shows the parts of the graph where the drone will be too heavy to fly ($F > 0.85$). Think back to earlier when we said that the function will be bounded by $F$. This is beacuse $F$ cannot be negative or greater than 1. $F<0$ represents a physically impossible weight to thrust ratio, and when $F=1$ the entire thrust is being used to make the drone hover. This means that if $F>1$, the drone would be so heavy that it would require more thrust to hover than the motors are capable of producing so the drone would not be able to fly.
 
@@ -142,37 +142,30 @@ Ideally, we want to set a target for $F$ representing the desired flight intensi
 
 What we learn from this is that $F$ is the main focus of our equation. We look to $t$ to find the results of our targets, but really the $F$ values control everything. Lets look at the graph for $F$ to learn more:
 
-<iframe src="https://www.desmos.com/calculator/ylchpi8ctl?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
+<iframe src="https://www.desmos.com/calculator/9trzmi9lgm?embed" width="500" height="500" style="border: 1px solid #ccc" frameborder=0></iframe>
 
-The key values of [this](https://www.desmos.com/calculator/ylchpi8ctl) graph are $F_{base}$ and $F_{gradient}$, where $F_{base}$ is the $y$-intercept of the graph and $F_{gradient}$ is the gradient of the graph. These values are important because they influence
+The key values of [this](https://www.desmos.com/calculator/9trzmi9lgm) graph are $F_{base}$ and $F_{gradient}$, where $F_{base}$ is the $y$-intercept of the graph and $F_{gradient}$ is the gradient of the graph. These values are important because they influence the position of the $F$ graph, so by reducing them, we move our $F_{target}$ further along the graph, resulting in better flight times.
 
+Once we have our chosen $F_{target}$, we can solve our $F$ equation for $c$ to find the desired capacity for this flight inensity. We don't need to put $N$ back into our $F$ expression despite the fact that there's nothing to cancel it out because the $F_{target}$ values are in terms of the model's $F$ values, which were calculated without using $N$:
 
-```
-It also shows that the model can be influenced by tuning different parameters of the drone:
+> *If we were calculating with some abitrary $F_{target}$, we would have to consider $N$, but because our $F_{target}$ is supposed to relate to a model which ignored $N$, we can omit $N$ from our calculations.*
 
-$bias$ increases and decreases the flight time as expected, and the $0.005$ multiplier has the desired effect of softening the effect of the change in bias on the overall flight time.
+$$F = \frac{m + 0.005b}{N \cdot p}$$
+$\text{Remember, we used a gradient to estimate the mass of a battery from it's capacity, so we'll refactor the equation to represent this:}$
+$$F = \frac{a \cdot c + m + 0.005b}{N \cdot p}$$
+$\text{Where } a \text{ is the estimated gradient and } m \text{ is the base mass of the drone}$
+$$F = \frac{a \cdot c + m + 0.005b}{N \cdot p}$$
+$$N \cdot p \cdot F= a \cdot c + m + 0.005b$$
+$$N \cdot p \cdot F - m - 0.005b= a \cdot c$$
+$$c = \frac{N \cdot p \cdot F - m - 0.005b}{a}$$
 
-$D$ (discharge) obviously increases the flight time as the discharge capacity is increased, as there is a greater capacity available to use.
+As you can see, finding the optimal battery actually ends up having nothing to do with $t$ *(however we could set a $t$ value, then reverse the equation to find which values the variables would need to hold to achive this time)*. $F$ is the main part of finding the battery, $t$ is just how we score our results and compare performance. This also further amplifies, the importance of the gradient $a$, since if this is innacurate, our $F$ and resultant $c$ values will also be wrong. Another interesting finding from this is that the numerator of this expression is the mass of the target battery, since $c \cdot a = m$ so $c = \frac{m}{a}$, which is the form of our $c$ formula.
 
-Increasing $I_c$ decreases flight time (also as expected).
-
-The $p$ value of the motors has a major impact on the overall flight time, since it directly affects the result of the flight intensity calculation which has a large impact on the formula.
-
-Reducing the $P_{MAX}$ value of the motor, also has a large benefit to the result of the calculation - since a lower $P_{MAX}$ with the same $p$ value means the motor is more power efficient, drawing less power.
-
-As the voltage $V$ of the battery increases, the flight time also increases beacause the result of the Power Consumption form for $t$ is directly influenced by the presence of $V$ in the denominator of its current draw estimation.
-
-Finally the reduction of $I_{MAX}$ increases the resulting flight time since $I_{MAX}$ is multiplied into the denominator of the Current Draw form for $t$.
-
-Carefully tuning these values within the constraints of the drone will maximise the flight time model, producing the best results for all batteries used.
-```
+This is the way to optimse how any general battery will perform against a given mode, but to improve the performance of the model itself, we tweak $I_c$, $P_{MAX}$, $I_{MAX}$, $V$; aiming to reduce the values in our $t$ expressions. Carefully tuning these values within the constraints of the drone will maximise the flight time model, producing the best results for all batteries used.
 
 ## TODO
-- To improve the performance of the model itself, we tweak $I_c$, $P_{MAX}$, $I_{MAX}$, $V$
-- `meta.json` ($F_{base}$, $F_{gradient}$, max capacity)
-- draw an $F$ graph underneath $t$ graph
-- shade $t$ and $F$ grapgh for $F \geq 0.9$ cos it won't take off
-	- find a better value than $0.9$
+- estimate loss of a battery by subtracting actual mass from estimated mass.
+- optimiser
 - pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
 - web version?
 - support more battery retailer sites

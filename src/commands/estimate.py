@@ -1,6 +1,6 @@
-from console import info
+from output import msg
 import click
-from data.model import Model
+from model import Model
 from scraper import scrape
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -55,10 +55,12 @@ def estimate(cells: int, domain: str, pages: int, compound: str):
         show_percent=True,
         show_pos=True,
         show_eta=True,
-    ) as items:
-        for item in items:
-            capacities.append(item.capacity)
-            masses.append(item.mass)
+    ) as data:
+        for entry in data:
+            capacities.append(entry[0])
+            masses.append(entry[1])
 
-    model = LinearRegression().fit(np.array(capacities), np.array(masses))
-    info(f"Multiplier estimation: {model.coef_[0]}")
+    model = LinearRegression().fit(
+        np.array(capacities).reshape(-1, 1), np.array(masses)
+    )
+    msg(f"Multiplier estimation: {model.coef_[0]}")

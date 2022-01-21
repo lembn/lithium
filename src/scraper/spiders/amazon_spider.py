@@ -1,11 +1,10 @@
 import re
-from data.battery import Battery
 from lxml.html import fromstring
 from scraper.spiders.spider import Spider
 
 
 class AmazonSpider(Spider):
-    PPA = 48
+    PPA = 38
 
     def crawl(self, url, page):
         html = fromstring(self.get(f"{url}&page={page}"))
@@ -33,12 +32,9 @@ class AmazonSpider(Spider):
         try:
             parsed_html = fromstring(self.get(url))
             about_list = parsed_html.xpath('//div[@id="feature-bullets"]/ul')[0]
-            return Battery(
-                asin,
-                re.search("\d+(?=m(a|A)h)", about_list.text_content()).group(),
-                re.search("\d+(?=g)", about_list.text_content()).group(),
-                url,
-                about_list.xpath('//span[@class="a-price"]/span')[0].text_content(),
-            )
+            return [
+                float(re.search("\d+(?=m(a|A)h)", about_list.text_content()).group()),
+                float(re.search("\d+(?=g)", about_list.text_content()).group()),
+            ]
         except:
             pass

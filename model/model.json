@@ -1,14 +1,16 @@
 {
-    "bias": 0,
-    "compound": "lipo",
-    "constant_current": 1.0,
-    "discharge": 0.8,
+    "name": "cedric",
     "mass": 0.5,
-    "maxes": {
-        "i": 10.6,
-        "p": 118.0
-    },
+    "motors": 4,
     "pull": 0.71,
-    "version": "1.0",
-    "voltage": 11.1
+    "constant_current": 1.0,
+    "voltage": 11.1,
+    "maxes": {
+        "p": 118.0,
+        "i": 10.6
+    },
+    "bias": 0,
+    "discharge": 0.8,
+    "compound": "lipo",
+    "version": "1.0"
 }

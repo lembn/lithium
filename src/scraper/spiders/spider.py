@@ -1,6 +1,5 @@
 from itertools import chain
 from typing import Callable
-from data.battery import Battery
 from abc import abstractmethod
 import random
 import requests
@@ -81,7 +80,7 @@ class Spider:
         pass
 
     @abstractmethod
-    def scrape(self, asin: str, page) -> dict[str, Battery]:
+    def scrape(self, asin: str, page) -> list[float, float]:
         pass
 
     def get(self, url: str) -> str:

@@ -1,11 +1,11 @@
 import click
-import console
-from data.model import Model
+import output
+from model import Model
 
 ## Graphing options
 @click.option(
     "--transparent",
-    help="A flag to represent if the graph image should have a transparent background",
+    help="Give the graph image a transparent background",
     is_flag=True,
     type=click.BOOL,
     show_default=True,
@@ -23,11 +23,11 @@ from data.model import Model
 ## Optional options
 @click.option(
     "-o",
-    "--output",
+    "--outfile",
     default="./",
     help="The relative path of the directory to save the model data to.",
     type=click.Path(),
-    metavar="<output>",
+    metavar="<outfile>",
     show_default=True,
 )
 @click.option(
@@ -95,13 +95,21 @@ from data.model import Model
     help="Base mass of the drone [not including battery] (kg).",
     type=click.FLOAT,
 )
-@click.command(short_help="Generate a model and save it's data to <output>")
+@click.option(
+    "-n",
+    "--name",
+    prompt=True,
+    help="Name of the model.",
+    type=click.STRING,
+)
+@click.command(short_help="Generate a model and save it's data to <outfile>")
 def generate(
+    name: str,
     mass: float,
     pull: float,
     constant_current: float,
     voltage: float,
-    output: str,
+    outfile: str,
     p_max: float,
     i_max: float,
     bias: int,
@@ -111,13 +119,17 @@ def generate(
     format: str,
     transparent: bool,
 ) -> None:
-    """Generate a model and save it's data to <output>"""
+    """Generate a model and save it's data to <outfile>"""
 
     if not p_max and not i_max:
-        console.warn("either p-max or i-max (or both) must be defined.")
+        output.msg(
+            "either p-max or i-max (or both) must be defined.", "WARNING", "yellow"
+        )
         return
-    output = output.strip()
+    output.msg("Generating...")
+    outfile = outfile.strip()
     model = Model(
+        name,
         mass,
         pull,
         constant_current,
@@ -128,5 +140,5 @@ def generate(
         p_max=p_max,
         i_max=i_max,
     )
-    model.save(output, dpi, format, transparent)
-    console.info(f"Saved to {output}")
+    model.save(outfile, dpi, format, transparent)
+    output.msg(f"Saved to {outfile}", colour="green")
