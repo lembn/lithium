@@ -2,19 +2,6 @@
 
 `lithium` is a battery capacity optimiser for drone builds that uses machine learning techniques to find the optimum battery capacity for a drone.
 
----
-
-base mass: 535
-
-6000mAh @ 424g -> 23.4min
-https://www.amazon.co.uk/HRB-6000mAh-Replacement-Airplane-Helicopter/dp/B0856XQFCV/ref=sr_1_8?keywords=3S+Lipo&qid=1641754353&sr=8-8
-7100mAh @ 428g -> 27.7min
-https://www.amazon.co.uk/SUNPADOW-Battery-7100mAh-Connector-Racing/dp/B08R9Q2PPW/ref=sr_1_9?keywords=3S+Lipo&qid=1641754353&sr=8-9
-8000mAh @ 493g -> 31.2min
-https://www.amazon.co.uk/Zeee-8000mAh-Rechargeable-Battery-Associated/dp/B07JZ3S457/ref=sr_1_27?keywords=3S+Lipo&qid=1641754353&sr=8-27
-
----
-
 ## flight time calculation
 
 > _This formula is designed to observe how different batteries affect the total flight time of a drone. Because of this, it is assumed that the capacity and voltage of the battery is known. Likewise, the formula assumes that the following information is already known about the motor:_
