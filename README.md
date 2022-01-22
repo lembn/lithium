@@ -150,11 +150,6 @@ As you can see, finding the optimal battery actually ends up having nothing to d
 
 This is the way to optimse how any general battery will perform against a given mode, but to improve the performance of the model itself, we tweak $I_c$, $P_{MAX}$, $I_{MAX}$, $V$; aiming to reduce the values in our $t$ expressions. Carefully tuning these values within the constraints of the drone will maximise the flight time model, producing the best results for all batteries used.
 
-## TODO
-- pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
-- build
-- tag release
-
 ---
 # ROADMAP
 - [ ] Make command loading faster. Running `lithium --help` takes ages and running `lithium [command]` takes even longer.
