@@ -10,6 +10,7 @@ import commands
     flight time for a drone with a given battery.
     """
 )
+@click.version_option("1.0.0")
 def cli():
     pass
 
