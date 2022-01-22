@@ -1,6 +1,6 @@
 # lithium
 
-`lithium` is a battery capacity optimiser for drone builds that uses machine learning techniques to find the optimum battery capacity for a drone.
+`lithium` produces models of flight times for drones from the mass and capacity of the drone's battery. These models can be compared to measure the flight time performance of a drone, or tested against to estimate flight time for a drone with a given battery.
 
 ## flight time calculation
 
