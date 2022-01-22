@@ -164,13 +164,12 @@ As you can see, finding the optimal battery actually ends up having nothing to d
 This is the way to optimse how any general battery will perform against a given mode, but to improve the performance of the model itself, we tweak $I_c$, $P_{MAX}$, $I_{MAX}$, $V$; aiming to reduce the values in our $t$ expressions. Carefully tuning these values within the constraints of the drone will maximise the flight time model, producing the best results for all batteries used.
 
 ## TODO
-- estimate loss of a battery by subtracting actual mass from estimated mass.
-- optimiser
 - pyinstaller - https://pyinstaller.readthedocs.io/en/stable/usage.html
-- web version?
-- support more battery retailer sites
+- build
+- tag release
 
-Sources:
-
-- https://youtu.be/g0HFGtzBtRs
-- https://youtu.be/KLGfMGsgP34
+---
+# ROADMAP
+- [ ] Make command loading faster. Running `lithium --help` takes ages and running `lithium [command]` takes even longer.
+- [ ] Make the progress bar in `lithium estimate` more accurate.
+-  [ ] Create an optimiser to recommend parts (or specs of parts) that will improve the model, while still being feasible (for example it won't just recommend setting mass to 0 even though this would drastically improve the model).

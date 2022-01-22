@@ -18,9 +18,9 @@ def show(modelfiles: tuple[click.File]):
         x, y, _ = model.points()
         colour = random.choice(colours)
         colours.remove(colour)
-        axs[0].plot(x, y, colour, label=model.name)  # TODO cycle colours
+        axs[0].plot(x, y, colour, label=model.name)
         x, y, _ = model.points(plot_f=True)
-        axs[1].plot(x, y, colour, label=model.name)  # TODO cycle colours
+        axs[1].plot(x, y, colour, label=model.name)
 
     axs[0].legend()
     axs[1].legend()

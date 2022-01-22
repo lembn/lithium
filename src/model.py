@@ -10,7 +10,7 @@ import output
 
 
 class Model:
-    # TODO: get better default value
+    # TODO: get better default value for li-ion
     multipliers: dict[str, np.double] = {"lipo": 0.06519803031807178, "li-ion": 0.072}
     compounds: list[str] = list(multipliers.keys())
     F_MAX: float = 0.85  # TODO get more accurate value
@@ -120,7 +120,6 @@ class Model:
             )
         self.save_graph(output, dpi, format, transparent)
 
-    # TODO this method does too much. It saves and returns
     def save_graph(
         self, outfile: str, dpi: float, format: str, transparent: bool
     ) -> None:

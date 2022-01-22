@@ -1,3 +1,4 @@
+import sys
 import click
 import commands
 
@@ -13,11 +14,13 @@ def cli():
     pass
 
 
-if __name__ == "__main__":
+if (
+    getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS")
+) or __name__ == "__main__":
     cli.add_command(commands.calculate)
     cli.add_command(commands.edit)
     cli.add_command(commands.estimate)
     cli.add_command(commands.generate)
     cli.add_command(commands.show)
     cli.add_command(commands.solve)
-    cli(prog_name="lithium")
+    cli(sys.argv[1:], prog_name="lithium")
