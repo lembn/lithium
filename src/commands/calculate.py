@@ -18,6 +18,9 @@ from model import Model
 @click.command(short_help="Estimate for the flight time.")
 def calculate(modelfile, capacity, mass):
     """Calculate an estimate for the flight time of drone using it's flight time model.
+    Predicted values are estimated using an average capacity to mass ratio taken from real
+    world battery data. If the given battery scores higher than the predicted value it can be
+    considered to have "above average" theoretical performance, and vice versa.
 
     \b
     MODELFILE - the relative file path of the model.json file to test aganst.
